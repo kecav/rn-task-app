@@ -7,12 +7,13 @@ import {
     FlatList,
     SafeAreaView,
     TouchableNativeFeedback,
+    ActivityIndicator,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import * as taskActions from "../store/actions";
-useDispatch;
 
 const Home = (props) => {
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const dispatch = useDispatch();
     const tasks = useSelector((state) => state.tasks);
 
@@ -20,19 +21,22 @@ const Home = (props) => {
         props.navigation.navigate("Edit Task", { id });
     };
 
-    const deleteTaskHandler = (id) => {
-        dispatch(taskActions.deleteTask(id));
-        // console.log(id);
+    const deleteTaskHandler = async (id) => {
+        setIsRefreshing(true);
+        await dispatch(taskActions.deleteTask(id));
+        await dispatch(taskActions.fetchTask());
+        setIsRefreshing(false);
     };
 
     const addTaskHandler = () => {
         props.navigation.navigate("Edit Task");
     };
 
-
     useEffect(() => {
         dispatch(taskActions.fetchTask());
     }, []);
+
+    // console.log("Rendered", tasks.length);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -49,6 +53,7 @@ const Home = (props) => {
                 </View>
             </View>
             <View style={styles.listView}>
+                {isRefreshing && <ActivityIndicator size="large" color="red" />}
                 <FlatList
                     data={tasks}
                     keyExtractor={(item) => item.id}
@@ -91,7 +96,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 24,
-        backgroundColor: "#eef",
+        backgroundColor: "#eee",
         paddingBottom: 20,
     },
     topRow: {
@@ -126,10 +131,10 @@ const styles = StyleSheet.create({
     listView: {
         marginBottom: 100,
     },
-    heading:{
+    heading: {
         fontSize: 24,
-        fontWeight: 'bold',
-    }
+        fontWeight: "bold",
+    },
 });
 
 export default Home;

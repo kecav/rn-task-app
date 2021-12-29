@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import {
     View,
-    Text,
     StyleSheet,
     Button,
     ScrollView,
     TextInput,
+    ActivityIndicator,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import * as taskActions from "../store/actions";
 
 const EditScreen = (props) => {
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const tasks = useSelector((state) => state.tasks);
     const [isNew, setIsNew] = useState(props.route.params ? false : true);
     const [task, setTask] = useState(
@@ -26,15 +27,19 @@ const EditScreen = (props) => {
     // console.log("FROM EDIT : ", task);
     // console.log(tasks);
 
-    const onSubmitHandler = () => {
+    const onSubmitHandler = async () => {
+        setIsRefreshing(true);
         if (isNew) {
-            dispatch(taskActions.createTask(title, description, remarks));
+            await dispatch(taskActions.createTask(title, description, remarks));
             console.log("New task added!");
         } else {
             id = props.route.params.id;
-            dispatch(taskActions.updateTask(id, title, description, remarks));
+            await dispatch(
+                taskActions.updateTask(id, title, description, remarks)
+            );
             console.log("task updated");
         }
+        setIsRefreshing(false);
         props.navigation.goBack();
     };
 
@@ -73,6 +78,7 @@ const EditScreen = (props) => {
                     value={remarks}
                     placeholder="Enter task Remarks here ..."
                 />
+                {isRefreshing && <ActivityIndicator size="large" color="red" />}
                 <Button title="Submit" onPress={onSubmitHandler} color="#222" />
             </View>
         </ScrollView>

@@ -4,7 +4,6 @@ export const UPDATE_TASK = "UPDATE_TASK";
 export const DELETE_TASK = "DELETE_TASK";
 import uuid from "react-native-uuid";
 
-
 export const createTask = (title, description, remarks) => {
     const id = uuid.v4();
     return async (dispatch) => {
